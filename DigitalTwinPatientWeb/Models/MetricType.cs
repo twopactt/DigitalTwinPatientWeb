@@ -1,0 +1,23 @@
+﻿using System;
+using System.Collections.Generic;
+
+namespace DigitalTwinPatientWeb.Models;
+
+public partial class MetricType
+{
+    public int Id { get; set; }
+
+    public string Code { get; set; } = null!;
+
+    public string Name { get; set; } = null!;
+
+    public int UnitOfMetricTypeId { get; set; }
+
+    public decimal? MinValue { get; set; }
+
+    public decimal? MaxValue { get; set; }
+
+    public virtual ICollection<HealthMetric> HealthMetrics { get; set; } = new List<HealthMetric>();
+
+    public virtual UnitOfMetricType UnitOfMetricType { get; set; } = null!;
+}

@@ -1,4 +1,31 @@
-﻿<!DOCTYPE html>
+﻿@inject DigitalTwinPatientWeb.Services.PatientService PatientService
+@using System.IdentityModel.Tokens.Jwt
+
+@{
+    var hideNavbar = ViewData["HideNavbar"] as bool? ?? false;
+    var hideFooter = ViewData["HideFooter"] as bool? ?? false;
+    var hideSidebar = ViewData["HideSidebar"] as bool? ?? false;
+    string patientName = null;
+
+    if (Context.Request.Cookies.TryGetValue("jwt", out var token))
+    {
+        try
+        {
+            var handler = new JwtSecurityTokenHandler();
+            var jwt = handler.ReadJwtToken(token);
+
+            patientName = jwt.Claims.FirstOrDefault(c =>
+                c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name")?.Value
+                ?? "Пациент";
+        }
+        catch
+        {
+            patientName = "Пациент";
+        }
+    }
+}
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -10,38 +37,78 @@
     <link rel="stylesheet" href="~/DigitalTwinPatientWeb.styles.css" asp-append-version="true" />
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container">
-                <a class="navbar-brand" asp-area="" asp-page="/Index">DigitalTwinPatientWeb</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+    @if (!hideNavbar)
+    {  
+        <header>
+            <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+                <div class="container">
+                    <a class="navbar-brand" asp-area="" asp-page="/Home">DigitalTwinPatientWeb</a>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
-                        </li>
-                    </ul>
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                        <ul class="navbar-nav flex-grow-1">
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-page="/Home">Home</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
+                            </li>
+                            @if (!string.IsNullOrEmpty(patientName))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" href="#">
+                                        @patientName
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link position-relative" href="#">
+                                        🔔
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <form method="post" asp-page-handler="Logout">
+                                        <button type="submit" class="btn btn-outline-danger">Выход</button>
+                                    </form>
+                                </li>
+                            }
+                        </ul>
+                    </div>
                 </div>
-            </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
+            </nav>
+        </header>
+    }
+
+    <div class="container" style="display: flex; min-height: 80vh; padding:0;">
+        @if (!hideSidebar)
+        {
+            <aside class="bg-light border-end" style="width: 220px; padding: 1rem; display:flex; flex-direction:column;">
+                <h5 class="mb-4">Меню</h5>
+                <a class="nav-link mb-2" asp-page="/Home">Главная</a>
+                <a class="nav-link mb-2" asp-page="/MyMetrics">Мои показатели</a>
+                <a class="nav-link mb-2" asp-page="/Appointments">Назначения</a>
+                <a class="nav-link mb-2" asp-page="/Diary">Дневник</a>
+                <a class="nav-link mb-2" asp-page="/Statistics">Статистика</a>
+                <a class="nav-link mb-2" asp-page="/Visits">Визиты</a>
+                <a class="nav-link mb-2" asp-page="/Settings">Настройки</a>
+                <a class="nav-link" asp-page="/Help">Помощь</a>
+            </aside>
+        }
+        @* <main role="main" class="pb-3"> *@
+        <main role="main" class="flex-grow-1 p-4">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - DigitalTwinPatientWeb - <a asp-area="" asp-page="/Privacy">Privacy</a>
-        </div>
-    </footer>
+    @if (!hideFooter)
+    {
+        <footer class="border-top footer text-muted">
+            <div class="container">
+                &copy; 2026 - DigitalTwinPatientWeb - <a asp-area="" asp-page="/Privacy">Privacy</a>
+            </div>
+        </footer>
+    }
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>

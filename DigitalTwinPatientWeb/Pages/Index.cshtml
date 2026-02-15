@@ -1,10 +1,27 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["HideNavbar"] = true;
+    ViewData["HideFooter"] = true;
+    ViewData["HideSidebar"] = true;
+    ViewData["Title"] = "Вход";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<h2>Вход в медицинский кабинет</h2>
+@* <h2>PasswordPassword!1</h2> *@
+
+<form method="post">
+    <div class="mb-3">
+        <label>Логин</label>
+        <input asp-for="Login" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label>Пароль</label>
+        <input asp-for="Password" type="password" class="form-control" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Войти</button>
+
+    <div asp-validation-summary="All" class="text-danger mt-2"></div>
+</form>
